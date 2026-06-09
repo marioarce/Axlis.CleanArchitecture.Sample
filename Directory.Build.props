@@ -1,0 +1,25 @@
+<Project>
+
+  <!--
+    Common build settings shared by every project in the solution.
+    Per-project .csproj files may override any of these.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!--
+    TODO(Features): when consuming the PowerCSharp Features framework via the local NuGet feed,
+    centralize the package versions here, e.g.:
+      <PowerCSharpFeaturesVersion>1.0.0</PowerCSharpFeaturesVersion>
+      <PowerCSharpFeatureCacheVersion>1.0.0</PowerCSharpFeatureCacheVersion>
+  -->
+
+</Project>
