@@ -2,6 +2,10 @@ using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Presentation;
 using CleanArchitecture.Presentation.Controllers;
+using PowerCSharp.BuiltInFeatures;
+using PowerCSharp.Feature.Cache;
+using PowerCSharp.Feature.Cache.BitFaster;
+using PowerCSharp.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +24,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
-// TODO(Features): replace/extend the wiring below with the PowerCSharp Features framework, e.g.
-//   builder.Services.AddPowerFeatures(builder.Configuration, options => { ... });
-// Built-in Features planned to migrate here: CORS, correlation ID, security headers,
-// response compression, exception-handling middleware, API versioning, JWT auth wiring.
+// --- PowerCSharp Features framework ---
+// Discovers feature modules, resolves flags (override > env > appsettings) and self-gates each
+// module on its PowerFeatures:<Key>:Enabled flag.
+builder.Services
+    .AddPowerFeatures(builder.Configuration, options =>
+    {
+        options.AddBuiltInFeatures();                              // Group 1 bundle (CORS, ...)
+        options.ScanAssemblies(typeof(CacheFeatureModule).Assembly); // Group 2 pluggable: Cache
+    })
+    .AddCacheBitFaster(builder.Configuration);                    // BitFaster provider (flag-gated)
 
 var app = builder.Build();
 
@@ -34,9 +44,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
 
-// TODO(Features): app.UsePowerFeatures(); to apply enabled feature middleware in order.
+// Applies enabled features' middleware (e.g. CORS) in module Order.
+app.UsePowerFeatures();
+
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

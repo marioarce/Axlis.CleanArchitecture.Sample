@@ -12,6 +12,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <!-- PowerCSharp Features framework (consumed from the local NuGet feed). -->
+  <ItemGroup>
+    <PackageReference Include="PowerCSharp.Features" Version="$(PowerCSharpFeaturesVersion)" />
+    <PackageReference Include="PowerCSharp.BuiltInFeatures" Version="$(PowerCSharpFeaturesVersion)" />
+    <PackageReference Include="PowerCSharp.Feature.Cache" Version="$(PowerCSharpFeatureCacheVersion)" />
+    <PackageReference Include="PowerCSharp.Feature.Cache.BitFaster" Version="$(PowerCSharpFeatureCacheVersion)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CleanArchitecture.Infrastructure\CleanArchitecture.Infrastructure.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Presentation\CleanArchitecture.Presentation.csproj" />

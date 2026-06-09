@@ -15,11 +15,10 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
-  <!--
-    TODO(Features): when consuming the PowerCSharp Features framework via the local NuGet feed,
-    centralize the package versions here, e.g.:
-      <PowerCSharpFeaturesVersion>1.0.0</PowerCSharpFeaturesVersion>
-      <PowerCSharpFeatureCacheVersion>1.0.0</PowerCSharpFeatureCacheVersion>
-  -->
+  <!-- Centralized PowerCSharp Features package versions (consumed from the local NuGet feed). -->
+  <PropertyGroup>
+    <PowerCSharpFeaturesVersion>1.0.0</PowerCSharpFeaturesVersion>
+    <PowerCSharpFeatureCacheVersion>1.0.0</PowerCSharpFeatureCacheVersion>
+  </PropertyGroup>
 
 </Project>
