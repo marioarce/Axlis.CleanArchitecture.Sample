@@ -15,8 +15,10 @@ PROJECTS=(
   "src/Features/PowerCSharp.Features.Abstractions"
   "src/Features/PowerCSharp.Features"
   "src/Features/PowerCSharp.BuiltInFeatures"
+  "src/Features/PowerCSharp.Feature.Cache.Abstractions"
   "src/Features/PowerCSharp.Feature.Cache"
   "src/Features/PowerCSharp.Feature.Cache.BitFaster"
+  "src/Features/PowerCSharp.Feature.Cache.Disk"
 )
 
 if [ ! -d "$SRC" ]; then
