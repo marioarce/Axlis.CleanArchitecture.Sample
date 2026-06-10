@@ -18,7 +18,7 @@
   <!-- Centralized PowerCSharp Features package versions (consumed from the local NuGet feed). -->
   <PropertyGroup>
     <PowerCSharpFeaturesVersion>1.0.0</PowerCSharpFeaturesVersion>
-    <PowerCSharpFeatureCacheVersion>1.2.0</PowerCSharpFeatureCacheVersion>
+    <PowerCSharpFeatureCacheVersion>1.0.0</PowerCSharpFeatureCacheVersion>
   </PropertyGroup>
 
 </Project>
