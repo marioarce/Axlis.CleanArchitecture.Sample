@@ -28,6 +28,30 @@ public sealed class SamplesCacheEndpointTests : IClassFixture<SamplesApiFactory>
     }
 
     [Fact]
+    public async Task Status_Shows_Keys_And_Delete_Clears_Cache()
+    {
+        var client = _factory.CreateClient();
+        var key = "status-" + Guid.NewGuid().ToString("N");
+
+        // Populate a known key.
+        await GetSampleAsync(client, key);
+
+        // Status should now include the key.
+        var (countAfterAdd, keysAfterAdd) = await GetStatusAsync(client);
+        Assert.True(countAfterAdd >= 1);
+        Assert.Contains(key, keysAfterAdd);
+
+        // Clear the cache.
+        var deleteResponse = await client.DeleteAsync("/v1/samples/cache");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        // Status should now be empty.
+        var (countAfterClear, keysAfterClear) = await GetStatusAsync(client);
+        Assert.Equal(0, countAfterClear);
+        Assert.Empty(keysAfterClear);
+    }
+
+    [Fact]
     public async Task Gate_Hides_Endpoint_When_Feature_Disabled()
     {
         // A client whose configuration leaves Samples disabled must get 404.
@@ -51,6 +75,24 @@ public sealed class SamplesCacheEndpointTests : IClassFixture<SamplesApiFactory>
         return new SampleData(
             data.GetProperty("value").GetString(),
             data.GetProperty("cacheHit").GetBoolean());
+    }
+
+    private static async Task<(int Count, IReadOnlyList<string> Keys)> GetStatusAsync(HttpClient client)
+    {
+        var response = await client.GetAsync("/v1/samples/cache/status");
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(stream);
+
+        var data = document.RootElement.GetProperty("data");
+        var count = data.GetProperty("count").GetInt32();
+        var keys = data.GetProperty("keys")
+            .EnumerateArray()
+            .Select(element => element.GetString()!)
+            .ToList();
+
+        return (count, keys);
     }
 
     private sealed record SampleData(string? Value, bool CacheHit);

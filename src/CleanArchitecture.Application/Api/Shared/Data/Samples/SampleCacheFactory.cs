@@ -52,4 +52,24 @@ public sealed class SampleCacheFactory : BaseFactory<SampleCacheFactoryContext>
             ElapsedMs = stopwatch.ElapsedMilliseconds,
         };
     }
+
+    /// <summary>Returns a snapshot of the cache contents (key count and the keys).</summary>
+    public GetSampleCacheStatusResponse GetStatus()
+    {
+        var keys = Context.Cache.GetKeys();
+        return new GetSampleCacheStatusResponse
+        {
+            Count = keys.Count,
+            Keys = keys,
+        };
+    }
+
+    /// <summary>Clears the cache and returns the number of keys that were present.</summary>
+    public int Clear()
+    {
+        var clearedKeys = Context.Cache.GetKeys().Count;
+        Context.Cache.Clear();
+        Context.Logger.LogInformation("Cleared sample cache ({ClearedKeys} keys removed)", clearedKeys);
+        return clearedKeys;
+    }
 }

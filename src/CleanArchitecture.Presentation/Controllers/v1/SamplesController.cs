@@ -1,3 +1,4 @@
+using CleanArchitecture.Application.Api.Samples.Commands;
 using CleanArchitecture.Application.Api.Samples.Queries;
 using CleanArchitecture.Application.Api.Samples.Responses;
 using CleanArchitecture.Presentation.Api;
@@ -38,4 +39,21 @@ public sealed class SamplesController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     public Task<IActionResult> GetCacheSampleAsync([FromQuery] string key = "sample")
         => SendAsync(new GetSampleCacheQuery(key));
+
+    /// <summary>
+    /// Shows the current contents of the sample cache (key count and the stored keys),
+    /// demonstrating <c>ICacheService.GetKeys()</c>.
+    /// </summary>
+    [HttpGet("cache/status")]
+    [ProducesResponseType(typeof(ApiResponse<GetSampleCacheStatusResponse>), StatusCodes.Status200OK)]
+    public Task<IActionResult> GetCacheStatusAsync()
+        => SendAsync(new GetSampleCacheStatusQuery());
+
+    /// <summary>
+    /// Clears the sample cache, demonstrating <c>ICacheService.Clear()</c>. Returns 204 No Content.
+    /// </summary>
+    [HttpDelete("cache")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public Task<IActionResult> ClearCacheAsync()
+        => SendAsync(new ClearSampleCacheCommand());
 }

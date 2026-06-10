@@ -13,31 +13,54 @@ internal static class ResultExtensions
 {
     public static IActionResult ToApiActionResult<T>(this Result<T> result)
     {
-        switch (result.Status)
+        if (result.Status == ResultStatus.Ok)
         {
-            case ResultStatus.Ok:
-                return new OkObjectResult(ApiResponse<T>.Ok(result.Value, result.SuccessMessage));
+            return new OkObjectResult(ApiResponse<T>.Ok(result.Value, result.SuccessMessage));
+        }
+
+        return MapNonOk(result.Status, result.Errors, result.ValidationErrors);
+    }
+
+    public static IActionResult ToApiActionResult(this Result result)
+    {
+        if (result.Status == ResultStatus.Ok)
+        {
+            return new OkObjectResult(ApiResponse.Ok(result.SuccessMessage));
+        }
+
+        return MapNonOk(result.Status, result.Errors, result.ValidationErrors);
+    }
+
+    private static IActionResult MapNonOk(
+        ResultStatus status,
+        IEnumerable<string> errors,
+        IEnumerable<ValidationError> validationErrors)
+    {
+        switch (status)
+        {
+            case ResultStatus.NoContent:
+                return new NoContentResult();
 
             case ResultStatus.Invalid:
-                var validationErrors = result.ValidationErrors
+                var ve = validationErrors
                     .Select(error => new ApiErrorInfo(error.ErrorMessage))
                     .ToList();
-                return new BadRequestObjectResult(ApiResponse.BadRequest(validationErrors));
+                return new BadRequestObjectResult(ApiResponse.BadRequest(ve));
 
             case ResultStatus.NotFound:
-                return new NotFoundObjectResult(ApiResponse.NotFound(ToErrors(result.Errors)));
+                return new NotFoundObjectResult(ApiResponse.NotFound(ToErrors(errors)));
 
             case ResultStatus.Unauthorized:
-                return new UnauthorizedObjectResult(ApiResponse.Unauthorized(ToErrors(result.Errors)));
+                return new UnauthorizedObjectResult(ApiResponse.Unauthorized(ToErrors(errors)));
 
             case ResultStatus.Forbidden:
-                return new ObjectResult(ApiResponse.Forbidden(ToErrors(result.Errors)))
+                return new ObjectResult(ApiResponse.Forbidden(ToErrors(errors)))
                 {
                     StatusCode = StatusCodes.Status403Forbidden,
                 };
 
             default:
-                return new BadRequestObjectResult(ApiResponse.BadRequest(ToErrors(result.Errors)));
+                return new BadRequestObjectResult(ApiResponse.BadRequest(ToErrors(errors)));
         }
     }
 

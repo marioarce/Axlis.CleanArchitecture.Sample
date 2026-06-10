@@ -47,4 +47,14 @@ public abstract class BaseApiController : ControllerBase
         var result = await Mediator.Send(request).ConfigureAwait(false);
         return result.ToApiActionResult();
     }
+
+    /// <summary>
+    /// Sends a request whose handler returns a non-generic <see cref="Result"/> (e.g. commands with
+    /// no payload), mapping it to an <see cref="IActionResult"/> via the <c>ApiResponse</c> envelope.
+    /// </summary>
+    protected async Task<IActionResult> SendAsync(IRequest<Result> request)
+    {
+        var result = await Mediator.Send(request).ConfigureAwait(false);
+        return result.ToApiActionResult();
+    }
 }

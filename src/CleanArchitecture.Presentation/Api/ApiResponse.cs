@@ -20,6 +20,10 @@ public class ApiResponse
     /// <summary>Any errors associated with a non-success response.</summary>
     public IReadOnlyList<ApiErrorInfo> Errors { get; init; } = Array.Empty<ApiErrorInfo>();
 
+    /// <summary>Creates a 200 OK envelope with no payload.</summary>
+    public static ApiResponse Ok(string? message = null)
+        => new() { Success = true, StatusCode = StatusCodes.Status200OK, Message = message };
+
     /// <summary>Creates a 400 Bad Request envelope.</summary>
     public static ApiResponse BadRequest(IReadOnlyList<ApiErrorInfo> errors)
         => new() { Success = false, StatusCode = StatusCodes.Status400BadRequest, Errors = errors };
