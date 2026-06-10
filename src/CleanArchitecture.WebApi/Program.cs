@@ -2,6 +2,7 @@ using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Presentation;
 using CleanArchitecture.Presentation.Controllers;
+using CleanArchitecture.WebApi.Features;
 using PowerCSharp.BuiltInFeatures;
 using PowerCSharp.Feature.Cache;
 using PowerCSharp.Feature.Cache.BitFaster;
@@ -30,8 +31,9 @@ builder.Services.AddHealthChecks();
 builder.Services
     .AddPowerFeatures(builder.Configuration, options =>
     {
-        options.AddBuiltInFeatures();                              // Group 1 bundle (CORS, ...)
+        options.AddBuiltInFeatures();                                // Group 1 bundle (CORS, ...)
         options.ScanAssemblies(typeof(CacheFeatureModule).Assembly); // Group 2 pluggable: Cache
+        options.AddModule(new SamplesFeatureModule());              // Host-local: /v1/samples area
     })
     .AddCacheBitFaster(builder.Configuration);                    // BitFaster provider (flag-gated)
 

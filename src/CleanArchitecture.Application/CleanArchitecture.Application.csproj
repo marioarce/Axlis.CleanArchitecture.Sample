@@ -16,6 +16,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
   </ItemGroup>
 
+  <!-- Cache contracts only (ICacheService). The BitFaster provider is referenced by the host. -->
+  <ItemGroup>
+    <PackageReference Include="PowerCSharp.Feature.Cache" Version="$(PowerCSharpFeatureCacheVersion)" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

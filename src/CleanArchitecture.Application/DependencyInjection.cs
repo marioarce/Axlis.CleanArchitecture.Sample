@@ -1,4 +1,5 @@
 using System.Reflection;
+using CleanArchitecture.Application.Api.Shared.Data.Samples;
 using CleanArchitecture.Application.Common.Behaviors;
 using FluentValidation;
 using MediatR;
@@ -24,8 +25,9 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(assembly);
 
-        // TODO(Features): once the PowerCSharp Features framework is available, application-level
-        // cross-cutting behaviors (validation, caching, etc.) may be contributed via Built-in Features.
+        // Factory contexts (the cache sample). Scoped so per-request collaborators flow in;
+        // ICacheService itself is supplied by the host's configured cache provider.
+        services.AddScoped<SampleCacheFactoryContext>();
 
         return services;
     }
