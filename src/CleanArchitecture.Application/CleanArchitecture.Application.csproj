@@ -19,6 +19,7 @@
   <!-- Cache contracts only (ICacheService). The BitFaster provider is referenced by the host. -->
   <ItemGroup>
     <PackageReference Include="PowerCSharp.Feature.Cache" Version="$(PowerCSharpFeatureCacheVersion)" />
+    <PackageReference Include="PowerCSharp.Feature.Cache.Disk" Version="$(PowerCSharpFeatureCacheVersion)" />
   </ItemGroup>
 
   <PropertyGroup>

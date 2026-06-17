@@ -18,6 +18,7 @@
     <PackageReference Include="PowerCSharp.BuiltInFeatures" Version="$(PowerCSharpFeaturesVersion)" />
     <PackageReference Include="PowerCSharp.Feature.Cache" Version="$(PowerCSharpFeatureCacheVersion)" />
     <PackageReference Include="PowerCSharp.Feature.Cache.BitFaster" Version="$(PowerCSharpFeatureCacheVersion)" />
+    <PackageReference Include="PowerCSharp.Feature.Cache.Disk" Version="$(PowerCSharpFeatureCacheVersion)" />
   </ItemGroup>
 
   <ItemGroup>
