@@ -76,4 +76,52 @@ public sealed class SamplesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public Task<IActionResult> ClearCacheAsync()
         => SendAsync(new ClearSampleCacheCommand());
+
+    /// <summary>
+    /// Demonstrates <c>PowerCSharp.Feature.Cache.Disk</c> via <c>IDiskCacheService</c>.
+    /// </summary>
+    /// <remarks>
+    /// The first call for a given <paramref name="key"/> is a cache miss (slow, simulated work);
+    /// subsequent calls are cache hits (fast). The response exposes <c>cacheHit</c> and
+    /// <c>elapsedMs</c> so the behavior is observable in Swagger.
+    /// </remarks>
+    /// <param name="key">The cache key to read or populate.</param>
+    [HttpGet("disk-cache")]
+    [FeatureGate("DiskCache")]
+    [ProducesResponseType(typeof(ApiResponse<GetSampleDiskCacheResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public Task<IActionResult> GetDiskCacheSampleAsync([FromQuery] string key = "sample")
+        => SendAsync(new GetSampleDiskCacheQuery(key));
+
+    /// <summary>
+    /// Shows the current contents of the sample disk cache (key count and the stored keys),
+    /// demonstrating <c>IDiskCacheService.GetKeys()</c>.
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Protect in production:</b> this leaks internal cache keys, which can reveal
+    /// implementation details, identifiers, or usage patterns. In a real application, restrict it
+    /// to administrators via authorization (e.g. <c>[Authorize(Policy = "Admin")]</c>) and consider
+    /// network/IP restrictions. The <c>DiskCache</c> feature flag is for hiding the demo, not for access control.</para>
+    /// </remarks>
+    [HttpGet("disk-cache/status")]
+    [FeatureGate("DiskCache")]
+    [ProducesResponseType(typeof(ApiResponse<GetSampleDiskCacheStatusResponse>), StatusCodes.Status200OK)]
+    public Task<IActionResult> GetDiskCacheStatusAsync()
+        => SendAsync(new GetSampleDiskCacheStatusQuery());
+
+    /// <summary>
+    /// Clears the sample disk cache, demonstrating <c>IDiskCacheService.Clear()</c>. Returns 204 No Content.
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Destructive — protect in production:</b> this wipes all cached entries and can cause a
+    /// cache-stampade / performance hit as data is rebuilt, and could be abused as a denial-of-service
+    /// vector if left open. In a real application, require authorization (e.g.
+    /// <c>[Authorize(Policy = "Admin")]</c>), and add rate limiting and audit logging. The <c>DiskCache</c>
+    /// feature flag only hides the demo; it does not authorize the caller.</para>
+    /// </remarks>
+    [HttpDelete("disk-cache")]
+    [FeatureGate("DiskCache")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public Task<IActionResult> ClearDiskCacheAsync()
+        => SendAsync(new ClearSampleDiskCacheCommand());
 }
