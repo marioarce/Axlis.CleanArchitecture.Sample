@@ -27,6 +27,7 @@ public sealed class GetSampleCacheStatusQueryHandler
         CancellationToken cancellationToken)
     {
         var factory = new SampleCacheFactory(_factoryContext);
-        return Task.FromResult(Result.Success(factory.GetStatus()));
+        var status = factory.GetStatus();
+        return Task.FromResult(Result.Success(status));
     }
 }
