@@ -11,6 +11,22 @@ using PowerCSharp.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- PowerCSharp Features framework ---
+// Discovers feature modules, resolves flags (override > env > appsettings) and self-gates each
+// module on its PowerFeatures:<Key>:Enabled flag.
+// NOTE: Must be called before AddApplication() because Application layer registers
+// SampleCacheFactoryContext which depends on ICacheService registered by this framework.
+builder.Services
+    .AddPowerFeatures(builder.Configuration, options =>
+    {
+        options.AddBuiltInFeatures();                                   // Group 1 bundle (CORS, ...)
+        options.ScanAssemblies(typeof(CacheFeatureModule).Assembly);    // Group 2 pluggable: Cache
+        options.AddModule(new SamplesFeatureModule());                  // Host-local: /v1/samples area
+    })
+    .AddCacheBitFaster(builder.Configuration)                           // BitFaster provider (flag-gated)
+    .AddCacheDisk(builder.Configuration)                                // Disk cache provider (flag-gated)
+;
+
 // --- Composition root: wire the layers (clean-correct dependency direction) ---
 builder.Services
     .AddApplication()
@@ -25,19 +41,6 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
-
-// --- PowerCSharp Features framework ---
-// Discovers feature modules, resolves flags (override > env > appsettings) and self-gates each
-// module on its PowerFeatures:<Key>:Enabled flag.
-builder.Services
-    .AddPowerFeatures(builder.Configuration, options =>
-    {
-        options.AddBuiltInFeatures();                                // Group 1 bundle (CORS, ...)
-        options.ScanAssemblies(typeof(CacheFeatureModule).Assembly); // Group 2 pluggable: Cache
-        options.AddModule(new SamplesFeatureModule());              // Host-local: /v1/samples area
-    })
-    .AddCacheBitFaster(builder.Configuration)                     // BitFaster provider (flag-gated)
-    .AddCacheDisk(builder.Configuration);                       // Disk cache provider (flag-gated) - temporarily disabled for debugging
 
 var app = builder.Build();
 

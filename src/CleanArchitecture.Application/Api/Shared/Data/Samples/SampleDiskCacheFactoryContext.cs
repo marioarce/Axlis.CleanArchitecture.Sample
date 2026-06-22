@@ -1,7 +1,7 @@
 using CleanArchitecture.Application.Api.Shared.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PowerCSharp.Feature.Cache;
+using PowerCSharp.Feature.Cache.Abstractions;
 
 namespace CleanArchitecture.Application.Api.Shared.Data.Samples;
 

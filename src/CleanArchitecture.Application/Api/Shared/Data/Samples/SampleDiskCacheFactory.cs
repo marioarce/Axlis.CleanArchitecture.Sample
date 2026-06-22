@@ -54,37 +54,32 @@ public sealed class SampleDiskCacheFactory : BaseFactory<SampleDiskCacheFactoryC
         };
     }
 
-    /// <summary>Returns a snapshot of the disk cache status (limited information).</summary>
-    /// <remarks>
-    /// Note: Disk cache doesn't expose GetKeys() method for security/performance reasons.
-    /// This method provides basic status information.
-    /// </remarks>
-    public Task<GetSampleDiskCacheStatusResponse> GetStatusAsync(CancellationToken cancellationToken)
+    /// <summary>Returns a snapshot of the disk cache status.</summary>
+    public async Task<GetSampleDiskCacheStatusResponse> GetStatusAsync(CancellationToken cancellationToken)
     {
-        // For disk cache, we can't get the actual keys like with in-memory cache
-        // So we'll return a basic status response
-        Context.Logger.LogInformation("Disk cache status requested - key enumeration not available for disk cache");
+        // Use ICacheStore capabilities to get disk cache keys
+        var keys = await Context.DiskCache.GetKeysAsync(cancellationToken).ConfigureAwait(false);
         
-        var response = new GetSampleDiskCacheStatusResponse
+        Context.Logger.LogInformation("Disk cache status retrieved - {Count} keys found", keys.Count);
+        
+        return new GetSampleDiskCacheStatusResponse
         {
-            Count = -1, // -1 indicates unknown count for disk cache
-            Keys = Array.Empty<string>(),
+            Count = keys.Count,
+            Keys = keys.ToList(),
         };
-        
-        return Task.FromResult(response);
     }
 
-    /// <summary>Simulates clearing the disk cache (limited functionality).</summary>
-    /// <remarks>
-    /// Note: Disk cache doesn't expose Clear() or PurgeExpired() methods through the interface for safety reasons.
-    /// This method provides a placeholder implementation that logs the action.
-    /// </remarks>
-    public Task<int> ClearAsync(CancellationToken cancellationToken)
+    /// <summary>Clears the disk cache and returns the number of keys that were present.</summary>
+    public async Task<int> ClearAsync(CancellationToken cancellationToken)
     {
-        // For disk cache, we can't clear entries through the interface for safety reasons
-        // This is a limitation of the disk cache design compared to in-memory cache
-        Context.Logger.LogInformation("Disk cache clear requested - not available through IDiskCacheService interface");
+        // Get keys before clearing for accurate count
+        var keys = await Context.DiskCache.GetKeysAsync(cancellationToken).ConfigureAwait(false);
+        var clearedKeys = keys.Count;
         
-        return Task.FromResult(0); // Return 0 since no actual clearing occurred
+        // Use ICacheStore ClearAsync method
+        await Context.DiskCache.ClearAsync(cancellationToken).ConfigureAwait(false);
+        
+        Context.Logger.LogInformation("Cleared disk cache ({ClearedKeys} keys removed)", clearedKeys);
+        return clearedKeys;
     }
 }
