@@ -19,7 +19,7 @@
 
   <!-- PowerCSharp framework and features packages -->
   <ItemGroup>
-    <PackageReference Include="PowerCSharp.Features.Abstractions" Version="1.0.0" />
+    <PackageReference Include="PowerCSharp.Features.Abstractions" Version="1.0.1" />
   </ItemGroup>
 
 
