@@ -1,96 +1,87 @@
-# PowerCSharp.CleanArchitecture
+# Axlis.CleanArchitecture.Sample
 
-> Clean Architecture .NET 8 WebApi starter template powered by PowerCSharp —  
-> start your next project on a production-ready foundation, not from scratch.
+> Sample Clean Architecture .NET 8 WebApi demonstrating the Axlis Sitecore Headless GraphQL ORM.
 
-[![CI](https://github.com/marioarce/PowerCSharp.CleanArchitecture/actions/workflows/ci.yml/badge.svg)](https://github.com/marioarce/PowerCSharp.CleanArchitecture/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-[![PowerCSharp](https://img.shields.io/badge/powered%20by-PowerCSharp-orange)](https://www.nuget.org/profiles/marioalbertoarce)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
 ## What is this?
 
-**PowerCSharp.CleanArchitecture** is a production-ready starter template for building ASP.NET Core Web APIs following Clean Architecture principles. It is opinionated by design: the architectural decisions, folder conventions, dependency rules, and cross-cutting concerns are already solved so you can focus on shipping your domain logic.
+**Axlis.CleanArchitecture.Sample** is a working example of integrating the Axlis ORM into a Clean Architecture ASP.NET Core WebApi. It demonstrates:
 
-This repo is:
-- A **GitHub Template Repository** — click "Use this template" to generate your own repo pre-populated with the full structure.
-- A **`dotnet new` template** — scaffold locally with a single command (see [Using as a Template](#using-as-a-template)).
+- Wiring Axlis and Axlis.GraphQL services via dependency injection
+- Defining strongly-typed Sitecore template POCOs
+- Using the Axlis facade (`ISitecoreFacade`) in CQRS handlers
+- Exercising field types: TextField, ImageField, MultilistField, ItemReferenceField
+- Axes traversal: Parent, Children, Siblings, GetChildren, GetDescendants
+- The WithResult rich API: value, metadata, and diagnostics
+
+This is a **sample project**, not a template. It contains dev-only ProjectReferences to the Axlis packages for rapid iteration during development. Before using this as a reference for production, replace the ProjectReferences with NuGet PackageReferences (see the `// fixme` markers in the code).
 
 ---
 
 ## Architecture Overview
 
-The solution follows a strict **dependency rule**: inner layers never reference outer layers. Dependencies always point inward.
+The solution follows Clean Architecture with strict dependency rules. Axlis is wired in the WebApi composition root and consumed by the Application layer via `ISitecoreFacade`.
 
 ```
 ┌──────────────────────────────────────────────┐
-│                   WebApi                     │  Composition root · host · middleware pipeline
+│                   WebApi                     │  Composition root · Axlis DI · user-secrets
 ├──────────────────────────────────────────────┤
-│                 Presentation                 │  Controllers · HTTP response mapping · ApiResponse<T>
-├─────────────────────────┬────────────────────┤
-│       Application       │    Operational     │  CQRS · MediatR · validators   │   Resilience · Polly
-├─────────────────────────┴────────────────────┤
-│               Infrastructure                 │  Adapters · external services · DI wiring
+│                 Presentation                 │  Controllers · SitecoreController (/v1/sitecore)
+├──────────────────────────────────────────────┤
+│       Application                           │  CQRS handlers · Sitecore template POCOs
+│       └── Sitecore/                          │  Disclaimer, HomePage, DictionaryRoot, Style
+├──────────────────────────────────────────────┤
+│               Infrastructure                 │  DateTimeProvider · Operational wiring
 ├──────────────────────┬───────────────────────┤
-│        Domain        │        Shared         │  Entities · interfaces · aggregates   │   Enums · constants
+│        Domain        │        Shared         │  BaseEntity · IAggregateRoot   │   Enums
 └──────────────────────┴───────────────────────┘
 ```
 
-| Layer | Project | Responsibility |
+| Layer | Project | Axlis Integration |
 |---|---|---|
-| **Domain** | `CleanArchitecture.Domain` | Core business entities (`BaseEntity<TId>`), aggregate root marker (`IAggregateRoot`). Zero external dependencies. |
-| **Shared** | `CleanArchitecture.Shared` | Enums and constants shared across layers without creating circular dependencies. |
-| **Application** | `CleanArchitecture.Application` | Use cases via CQRS (MediatR). Commands, Queries, Handlers, Validators (FluentValidation), pipeline behaviors. |
-| **Operational** | `CleanArchitecture.Operational` | Cross-cutting resilience concerns: retry policies via Polly (`IRetryPolicyProvider`). |
-| **Infrastructure** | `CleanArchitecture.Infrastructure` | Concrete adapters: `DateTimeProvider`, Operational wiring. Third-party integrations live here. |
-| **Presentation** | `CleanArchitecture.Presentation` | API controllers (extend `BaseApiController`), `ApiResponse<T>` envelope, `[FeatureGate]` attribute. |
-| **WebApi** | `CleanArchitecture.WebApi` | Composition root — wires all layers, configures PowerCSharp Features, registers middleware. |
+| **WebApi** | `CleanArchitecture.WebApi` | Registers `AddAxlis()` and `AddAxlisGraphQL()`, wires `UseAxlis()`, reads config from appsettings + user-secrets |
+| **Presentation** | `CleanArchitecture.Presentation` | `SitecoreController` exposes `/v1/sitecore/showcase` endpoint |
+| **Application** | `CleanArchitecture.Application` | Defines Sitecore template POCOs, CQRS handler uses `ISitecoreFacade` |
+| **Infrastructure** | `CleanArchitecture.Infrastructure` | No Axlis code (clean separation) |
+| **Domain** | `CleanArchitecture.Domain` | No Axlis code (pure domain) |
+| **Shared** | `CleanArchitecture.Shared` | No Axlis code (shared types) |
 
 ---
 
 ## Project Structure
 
 ```
-PowerCSharp.CleanArchitecture/
+Axlis.CleanArchitecture.Sample/
 ├── src/
-│   ├── CleanArchitecture.Domain/           # Entities, aggregate root marker
-│   ├── CleanArchitecture.Shared/           # Cross-layer enums & constants
-│   ├── CleanArchitecture.Application/      # CQRS handlers, validators, behaviors
-│   │   ├── Abstractions/                   # Ports (e.g. IDateTimeProvider)
+│   ├── CleanArchitecture.Domain/           # BaseEntity, IAggregateRoot
+│   ├── CleanArchitecture.Shared/           # Enums, constants
+│   ├── CleanArchitecture.Application/      # CQRS handlers, Sitecore template POCOs
 │   │   ├── Api/
-│   │   │   ├── Samples/                    # Living-doc sample use cases
-│   │   │   └── Shared/                     # Shared application data/factories
-│   │   └── Common/
-│   │       ├── Behaviors/                  # MediatR pipeline behaviors
-│   │       └── Handlers/                   # Shared handler utilities
-│   ├── CleanArchitecture.Operational/      # Resilience (Polly retry pipelines)
-│   ├── CleanArchitecture.Infrastructure/   # Adapters (DateTimeProvider, etc.)
-│   ├── CleanArchitecture.Presentation/     # Controllers, ApiResponse<T> envelope
-│   │   ├── Api/                            # Response types, attributes
-│   │   ├── Controllers/
-│   │   │   └── v1/                         # Versioned controllers (SamplesController)
-│   │   └── Extensions/                     # Result → IActionResult mapping
-│   └── CleanArchitecture.WebApi/           # Host: Program.cs, appsettings, Features
-│       └── Features/                       # Host-local feature modules
+│   │   │   ├── Samples/                    # PowerCSharp Cache sample endpoints
+│   │   │   └── Sitecore/                   # Axlis showcase: Query, Handler, Response
+│   │   ├── Sitecore/
+│   │   │   └── Templates/                  # Disclaimer, HomePage, DictionaryRoot, Style
+│   │   └── Common/                         # Behaviors, BaseRequestHandler
+│   ├── CleanArchitecture.Operational/      # Polly retry policies
+│   ├── CleanArchitecture.Infrastructure/   # DateTimeProvider
+│   ├── CleanArchitecture.Presentation/     # Controllers, ApiResponse<T>
+│   │   └── Controllers/v1/
+│   │       ├── SamplesController           # PowerCSharp Cache demo
+│   │       └── SitecoreController          # Axlis showcase endpoint
+│   └── CleanArchitecture.WebApi/           # Program.cs (Axlis DI, user-secrets)
 ├── tests/
-│   ├── CleanArchitecture.Tests.Shared/     # Shared test utilities & fixtures
-│   ├── CleanArchitecture.WebApi.UnitTests/ # Unit tests
-│   └── CleanArchitecture.WebApi.IntegrationTests/ # Integration tests (WebApplicationFactory)
+│   ├── CleanArchitecture.Tests.Shared/
+│   ├── CleanArchitecture.WebApi.UnitTests/
+│   └── CleanArchitecture.WebApi.IntegrationTests/
 ├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml                          # Build + test on push / PR
-│   │   └── release.yml                     # Tag-triggered release & NuGet publish
-│   ├── ISSUE_TEMPLATE/
-│   └── pull_request_template.md
-├── .template.config/
-│   └── template.json                       # dotnet new template definition
-├── Directory.Build.props                   # Shared build settings (TargetFramework, Nullable, etc.)
-├── NuGet.Config                            # Package sources (nuget.org only)
-├── global.json                             # Pinned .NET SDK version
-├── Dockerfile                              # Multi-stage production image
-├── docker-compose.yml                      # Local development stack
+│   └── workflows/
+│       └── ci.yml
+├── Directory.Build.props
+├── global.json
 └── PowerCSharp.CleanArchitecture.sln
 ```
 
@@ -98,47 +89,40 @@ PowerCSharp.CleanArchitecture/
 
 ## What's Included
 
-### Clean Architecture
-- **Strict dependency rule** enforced by project references — outer layers cannot leak into inner layers.
-- **`BaseEntity<TId>`** — generic, strongly-typed entity base in the Domain layer.
-- **`IAggregateRoot`** — marker interface for aggregate roots.
+### Axlis Integration
+- **Axlis service registration** in `Program.cs` via `AddAxlis()` and `AddAxlisGraphQL()`
+- **Ambient lazy-loader** wired via `UseAxlis()` for ExtendedItem.Axes traversal
+- **User-secrets** for sensitive config (Endpoint, ApiKey) — never committed
+- **Dev-only ProjectReferences** to Axlis packages (marked `// fixme` for NuGet swap)
 
-### CQRS via MediatR
-- Commands and Queries separated into dedicated folders.
-- `BaseApiController.SendAsync<T>()` dispatches through MediatR and maps the result to HTTP.
-- **`LoggingBehavior<TRequest, TResponse>`** — MediatR pipeline behavior that logs every request/response automatically.
+### Sitecore Template POCOs
+Located in `src/CleanArchitecture.Application/Sitecore/Templates/`:
+- **Disclaimer** — TextField Heading/Description
+- **HomePage** — ImageField MetaThumbnail + MultilistField HeadCssLinks
+- **PresentationAssetLink** — TextField Link
+- **DictionaryRoot** — ItemReferenceField FallbackDomain
+- **Style** — typed predicate for Axes.GetChildren/GetDescendants
 
-### Validation via FluentValidation
-- Validators registered automatically via assembly scanning.
-- Integrated with MediatR pipeline — invalid requests are rejected before reaching handlers.
+### CQRS Showcase Endpoint
+`GET /v1/sitecore/showcase` exercises six Axlis API pivots:
+1. **TextField** — Disclaimer Heading/Description
+2. **ImageField + MultilistField** — HomePage MetaThumbnail + HeadCssLinks
+3. **ItemReferenceField** — Dictionary FallbackDomain
+4. **Axes traversal** — Parent, Children, Grandparent, Siblings, typed GetChildren
+5. **GetDescendants** — recursive typed traversal
+6. **WithResult rich API** — value, metadata, diagnostics
 
-### Consistent HTTP Responses
-- **`ApiResponse<T>`** / **`ApiResponse`** envelope on every endpoint.
-- `Ardalis.Result` used in handlers; extension method maps it to the correct HTTP status code automatically.
+### Clean Architecture Foundation
+- Strict dependency rule enforced by project references
+- CQRS via MediatR with `BaseRequestHandler<T, TResponse>`
+- FluentValidation integration
+- `ApiResponse<T>` envelope on all endpoints
+- `LoggingBehavior<TRequest, TResponse>` pipeline behavior
 
 ### PowerCSharp Features Framework
-Pluggable feature modules with flag-gating (`PowerFeatures:<Key>:Enabled` in `appsettings.json`):
-
-| Feature | Package | What it gives you |
-|---|---|---|
-| **CORS** | `PowerCSharp.BuiltInFeatures` | Configurable CORS policy, flag-gated |
-| **Cache (BitFaster)** | `PowerCSharp.Feature.Cache.BitFaster` | High-performance in-memory cache via `ICacheService` |
-| **Cache (Disk)** | `PowerCSharp.Feature.Cache.Disk` | Persistent disk cache via `IDiskCacheService` |
-| **Samples** | host-local module | Living-documentation endpoints at `/v1/samples` (flag-gated, disabled in production) |
-
-### Resilience
-- **Polly** retry policies via `IRetryPolicyProvider` in the `Operational` layer — ready to wire into any infrastructure adapter.
-
-### Health Checks
-- `/health` endpoint registered and mapped out of the box.
-
-### Living-Documentation Samples
-The `Samples` feature (disabled by default, enabled in Development) ships working endpoint examples for:
-- `GET /v1/samples/cache` — cache miss → hit demonstration
-- `GET /v1/samples/cache/status` — inspect cache keys
-- `DELETE /v1/samples/cache` — clear cache
-- `GET /v1/samples/disk-cache` — disk cache demonstration
-- Full integration tests covering the above
+- CORS, Cache (BitFaster), DiskCache, Samples feature modules
+- Flag-gating via `PowerFeatures:<Key>:Enabled` in `appsettings.json`
+- Samples feature enabled in Development for showcase endpoint access
 
 ---
 
@@ -147,57 +131,46 @@ The `Samples` feature (disabled by default, enabled in Development) ships workin
 | Tool | Version |
 |---|---|
 | [.NET SDK](https://dotnet.microsoft.com/download/dotnet/8.0) | 8.0 or later |
-| [Docker](https://www.docker.com/) *(optional)* | 20.10+ |
 | Git | any recent version |
+| Sitecore Headless GraphQL endpoint | accessible from dev machine |
 
 ---
 
 ## Quick Start
 
-### Clone and run
+### Clone and configure
 
 ```bash
-git clone https://github.com/marioarce/PowerCSharp.CleanArchitecture.git
-cd PowerCSharp.CleanArchitecture
+git clone https://github.com/marioarce/Axlis.CleanArchitecture.Sample.git
+cd Axlis.CleanArchitecture.Sample
 
 dotnet restore
 dotnet build
-dotnet run --project src/CleanArchitecture.WebApi
+```
+
+### Set user-secrets for Sitecore connection
+
+```bash
+cd src/CleanArchitecture.WebApi
+dotnet user-secrets set "AxlisGraphQL:Endpoint" "https://your-sitecore-instance/sitecore/api/graph/edge"
+dotnet user-secrets set "AxlisGraphQL:ApiKey" "{YOUR-API-KEY}"
+```
+
+### Run the API
+
+```bash
+dotnet run --project src/CleanArchitecture.WebApi/CleanArchitecture.WebApi.csproj
 ```
 
 The API starts on `https://localhost:7xxx` / `http://localhost:5xxx`. Open the Swagger UI at `/swagger`.
 
-### Run with Docker
+### Test the showcase endpoint
 
 ```bash
-docker compose up --build
+curl "https://localhost:7235/v1/sitecore/showcase?rootPath=/sitecore/content/home"
 ```
 
-The API is available at `http://localhost:8080`.
-
----
-
-## Using as a Template
-
-### Option A — GitHub Template (recommended for new repos)
-
-1. Click **"Use this template"** at the top of this page.
-2. Name your new repository and choose visibility.
-3. GitHub creates a new repo with the full project structure — no fork, clean history.
-
-### Option B — `dotnet new` (scaffold locally)
-
-```bash
-# Install the template once
-dotnet new install PowerCSharp.CleanArchitecture.Template
-
-# Scaffold a new project
-dotnet new powercsharp-cleanarchitecture --name MyAwesomeApi --output ./MyAwesomeApi
-cd MyAwesomeApi
-dotnet run --project src/MyAwesomeApi.WebApi
-```
-
-`--name` replaces `CleanArchitecture` everywhere: filenames, namespaces, project references, and the solution file.
+Adjust `rootPath` to match your Sitecore content tree structure.
 
 ---
 
@@ -220,45 +193,80 @@ Integration tests use `WebApplicationFactory<Program>` — no external dependenc
 
 ## Configuration
 
-Key feature flags in `appsettings.json`:
+### Axlis Configuration
+
+`appsettings.json` contains the Axlis and AxlisGraphQL sections:
 
 ```json
 {
-  "PowerFeatures": {
-    "Cors": { "Enabled": true, "AllowedOrigins": [ "https://localhost" ] },
-    "Cache": { "Enabled": true, "Provider": "BitFaster", "Capacity": 1000 },
-    "DiskCache": { "Enabled": true, "DirectoryPath": "./cache" },
-    "Samples": { "Enabled": false }
+  "Axlis": {
+    "CacheTtl": "00:30:00",
+    "EnableDiagnostics": true
+  },
+  "AxlisGraphQL": {
+    "Endpoint": "",
+    "BatchSize": 10,
+    "TimeoutSeconds": 30
   }
 }
 ```
 
-`appsettings.Development.json` overrides `Samples.Enabled` to `true` so the living-documentation endpoints are visible locally but hidden in production.
+The `Endpoint` and `ApiKey` values are intentionally empty in `appsettings.json`. Set them via user-secrets:
+
+```bash
+dotnet user-secrets set "AxlisGraphQL:Endpoint" "https://your-sitecore-instance/sitecore/api/graph/edge"
+dotnet user-secrets set "AxlisGraphQL:ApiKey" "{YOUR-API-KEY}"
+```
+
+### PowerCSharp Features
+
+The `Samples` feature flag must be enabled to access the showcase endpoint:
+
+```json
+{
+  "PowerFeatures": {
+    "Samples": {
+      "Enabled": true
+    }
+  }
+}
+```
+
+This is already set to `true` in `appsettings.json` for this sample.
 
 ---
 
-## PowerCSharp Ecosystem
+## Dev-Only References
 
-All packages are available on [nuget.org](https://www.nuget.org/profiles/marioalbertoarce):
+This sample uses **ProjectReferences** to the Axlis packages for rapid iteration during development. These are marked with `// fixme` comments and must be replaced with NuGet PackageReferences before using this code in production:
 
-| Package | Description |
-|---|---|
-| [`PowerCSharp.Features`](https://www.nuget.org/packages/PowerCSharp.Features) | Feature module system & flag resolution |
-| [`PowerCSharp.BuiltInFeatures`](https://www.nuget.org/packages/PowerCSharp.BuiltInFeatures) | CORS and other built-in feature modules |
-| [`PowerCSharp.Feature.Cache`](https://www.nuget.org/packages/PowerCSharp.Feature.Cache) | Cache feature module |
-| [`PowerCSharp.Feature.Cache.Abstractions`](https://www.nuget.org/packages/PowerCSharp.Feature.Cache.Abstractions) | `ICacheService` / `IDiskCacheService` contracts |
-| [`PowerCSharp.Feature.Cache.BitFaster`](https://www.nuget.org/packages/PowerCSharp.Feature.Cache.BitFaster) | High-performance in-memory cache provider |
-| [`PowerCSharp.Feature.Cache.Disk`](https://www.nuget.org/packages/PowerCSharp.Feature.Cache.Disk) | Persistent disk cache provider |
+- `src/CleanArchitecture.Application/CleanArchitecture.Application.csproj` — references `Axlis.Core`
+- `src/CleanArchitecture.WebApi/CleanArchitecture.WebApi.csproj` — references `Axlis` and `Axlis.GraphQL`
+
+Replace the ProjectReference items with PackageReference items when preparing for release:
+
+```xml
+<!-- Replace this dev-only ProjectReference -->
+<ProjectReference Include="..\..\..\Axlis\src\Axlis.Core\Axlis.Core.csproj" />
+
+<!-- With this NuGet PackageReference -->
+<PackageReference Include="Axlis.Core" Version="0.1.0-preview" />
+```
 
 ---
 
-## Contributing
+## Template POCO GUIDs
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+The sample template POCOs use placeholder GUIDs marked with `// fixme`. Replace these with the real template IDs from your Sitecore instance:
+
+- `Disclaimer.cs` — `{00000000-0000-0000-0000-000000000001}`
+- `HomePage.cs` — `{00000000-0000-0000-0000-000000000002}`
+- `PresentationAssetLink.cs` — `{00000000-0000-0000-0000-000000000003}`
+- `DictionaryRoot.cs` — `{00000000-0000-0000-0000-000000000004}`
+- `Style.cs` — `{00000000-0000-0000-0000-000000000005}`
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).  
-Copyright (c) 2026 Mario Alberto Arce.
+This project is licensed under the [MIT License](LICENSE).
