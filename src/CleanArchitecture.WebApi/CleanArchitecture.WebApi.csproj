@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup>  <UserSecretsId>d7619c51-7f22-471a-b328-7e4198f851b0</UserSecretsId>
+  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
@@ -20,6 +21,12 @@
     <ProjectReference Include="..\CleanArchitecture.Application\CleanArchitecture.Application.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Shared\CleanArchitecture.Shared.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Domain\CleanArchitecture.Domain.csproj" />
+  </ItemGroup>
+
+  <!-- fixme: dev-only ProjectReference — replace with PackageReference to Axlis + Axlis.GraphQL NuGet before release -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Axlis\src\Axlis\Axlis.csproj" />
+    <ProjectReference Include="..\..\..\Axlis\src\Axlis.GraphQL\Axlis.GraphQL.csproj" />
   </ItemGroup>
 
 </Project>
