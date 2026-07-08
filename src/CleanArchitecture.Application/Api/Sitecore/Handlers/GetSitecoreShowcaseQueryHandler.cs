@@ -3,7 +3,8 @@ using Axlis.Services;
 using CleanArchitecture.Application.Api.Sitecore.Queries;
 using CleanArchitecture.Application.Api.Sitecore.Responses;
 using CleanArchitecture.Application.Common.Handlers;
-using CleanArchitecture.Application.Sitecore.Templates;
+using CleanArchitecture.Application.Sitecore.Templates.Sample;
+using CleanArchitecture.Application.Sitecore.Templates.System;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Application.Api.Sitecore.Handlers;
@@ -36,110 +37,90 @@ public sealed class GetSitecoreShowcaseQueryHandler
         GetSitecoreShowcaseQuery request,
         CancellationToken cancellationToken)
     {
-        var rootPath = request.RootPath;
-        // fixme: adjust relative paths to match the connected Sitecore content tree
-        var disclaimerPath  = $"{rootPath}/disclaimer";
-        var dictionaryPath  = $"{GetParentPath(rootPath)}/dictionary";
+        /*
+         * /sitecore/content/Home
+         */
+        var homePath = "/sitecore/content/Home";
 
-        // ── Pivot 1: TextField (Disclaimer) ───────────────────────────────────
-        var disclaimer = await _facade
-            .GetItemByPathAsync<Disclaimer>(disclaimerPath, cancellationToken)
-            .ConfigureAwait(false);
+        /*
+         * /sitecore/system/Languages
+         */
+        var languagesPath = "/sitecore/system/Languages";
 
-        DisclaimerPivot? disclaimerPivot = null;
-        if (disclaimer is not null)
-        {
-            disclaimerPivot = new DisclaimerPivot
-            {
-                Heading     = disclaimer.Heading.Value,
-                Description = disclaimer.Description.Value,
-            };
-        }
+        /*
+         * /sitecore/system/Publishing targets
+         */
+        var publishingTargetsPath = "/sitecore/system/Publishing targets";
 
-        // ── Pivot 2: ImageField + MultilistField (HomePage) ───────────────────
-        var home = await _facade
-            .GetItemByPathAsync<HomePage>(rootPath, cancellationToken)
+        // ── Example: Home, how to get item by Sitecore Path ───────────────────────────────────
+        var homeItem = await _facade
+            .GetItemByPathAsync<SampleItem>(homePath, cancellationToken)
             .ConfigureAwait(false);
 
         HomePivot? homePivot = null;
-        if (home is not null)
-        {
-            var cssLinks    = home.HeadCssLinks.As<PresentationAssetLink>();
-            var firstParent = cssLinks.Count > 0
-                ? cssLinks[0].Axes.Parent?.Path
-                : null;
 
+        if (homeItem is not null)
+        {
+            /* How to access a TextField value
+             */
             homePivot = new HomePivot
             {
-                MetaThumbnailSrc   = home.MetaThumbnail.Value?.Sources.Small,
-                MetaThumbnailAlt   = home.MetaThumbnail.Value?.AlternativeText,
-                HeadCssLinksCount  = cssLinks.Count,
-                HeadCssLinkValues  = cssLinks.Select(l => l.Link.Value).ToList(),
-                FirstLinkParentPath = firstParent,
+                Title = homeItem.Title.Value,
+                Text = homeItem.Text.Value,
             };
         }
 
-        // ── Pivot 3: ItemReferenceField (DictionaryRoot) ──────────────────────
-        var dictRoot = await _facade
-            .GetItemByPathAsync<DictionaryRoot>(dictionaryPath, cancellationToken)
-            .ConfigureAwait(false);
-
-        DictionaryPivot? dictionaryPivot = null;
-        if (dictRoot is not null)
-        {
-            var fallback = dictRoot.FallbackDomain.Value;
-            dictionaryPivot = new DictionaryPivot
-            {
-                FallbackDomainId   = fallback?.Id,
-                FallbackDomainPath = fallback?.Path,
-            };
-        }
-
-        // ── Pivot 4: Axes traversal (on the home item) ────────────────────────
+        // ── Example: Axes traversal ────────────────────────
         AxesPivot? axesPivot = null;
-        if (home is not null)
+
+        if (homeItem is not null)
         {
-            var parent      = home.Axes.Parent;
-            var children    = home.Axes.Children;
+            var parent = homeItem.Axes.Parent;
+            var children = homeItem.Axes.Children;
             var grandparent = parent?.Axes.Parent;
-            var siblings    = home.Axes.Siblings;
-            var typedKids   = home.Axes.GetChildren<PresentationAssetLink>();
+            var siblings = homeItem.Axes.Siblings;
 
             axesPivot = new AxesPivot
             {
-                ItemPath          = home.Path,
-                ParentPath        = parent?.Path,
-                ChildrenCount     = children?.Count ?? 0,
-                GrandparentPath   = grandparent?.Path,
-                SiblingsCount     = siblings?.Count ?? 0,
-                TypedChildrenCount = typedKids.Count,
+                ItemPath = homeItem.Path,
+                ParentPath = parent?.Path ?? "unknown",
+                ChildrenCount = children?.Count ?? 0,
+                GrandparentPath = grandparent?.Path ?? "unknown",
+                SiblingsCount = siblings?.Count ?? 0
             };
         }
 
-        // ── Pivot 5: GetDescendants (on the home item) ────────────────────────
+        // ── Example: Languages ───────────────────
+        var languagesItem = await _facade
+            .GetItemByPathAsync<Node>(languagesPath, cancellationToken)
+            .ConfigureAwait(false);
+
+        // ── Example: GetDescendants  ────────────────────────
         DescendantsPivot? descendantsPivot = null;
-        if (home is not null)
+
+        if (languagesItem is not null)
         {
-            var descendants = home.Axes.GetDescendants<Style>();
+            var descendants = languagesItem.Axes.GetDescendants<Language>();
+
             descendantsPivot = new DescendantsPivot
             {
-                RootPath         = home.Path,
+                RootPath = languagesItem.Path,
                 DescendantsCount = descendants.Count,
             };
         }
 
-        // ── Pivot 6: WithResult rich API (Disclaimer) ─────────────────────────
+        // ── Example: how to get item by path rich API result (Metadata + DiagnosticsData) ─────────────────────────
         var richResult = await _facade
-            .GetItemByPathWithResultAsync<Disclaimer>(disclaimerPath, cancellationToken)
+            .GetItemByPathWithResultAsync<Node>(publishingTargetsPath, cancellationToken)
             .ConfigureAwait(false);
 
         var richPivot = new RichApiPivot
         {
-            Found             = richResult.HasValue,
-            ItemId            = richResult.Metadata?.ItemId,
-            ItemPath          = richResult.Metadata?.ItemPath,
-            ItemVersion       = richResult.Metadata?.ItemVersion,
-            FetchedAtMs       = richResult.Metadata?.Timestamp,
+            Found = richResult.HasValue,
+            ItemId = richResult.Metadata?.ItemId,
+            ItemPath = richResult.Metadata?.ItemPath,
+            ItemVersion = richResult.Metadata?.ItemVersion,
+            FetchedAtMs = richResult.Metadata?.Timestamp,
             DiagnosticsMessages = richResult.Diagnostics?.Events
                 .Select(e => $"[{e.Severity}] {e.Message}")
                 .ToList() ?? new List<string>(),
@@ -147,21 +128,12 @@ public sealed class GetSitecoreShowcaseQueryHandler
 
         var response = new GetSitecoreShowcaseResponse
         {
-            Disclaimer  = disclaimerPivot,
-            Home        = homePivot,
-            Dictionary  = dictionaryPivot,
-            Axes        = axesPivot,
+            Home = homePivot,
+            Axes = axesPivot,
             Descendants = descendantsPivot,
-            RichApi     = richPivot,
+            RichApi = richPivot,
         };
 
         return Result.Success(response);
-    }
-
-    private static string GetParentPath(string path)
-    {
-        var trimmed = path.TrimEnd('/');
-        var idx = trimmed.LastIndexOf('/');
-        return idx <= 0 ? "/" : trimmed[..idx];
     }
 }
