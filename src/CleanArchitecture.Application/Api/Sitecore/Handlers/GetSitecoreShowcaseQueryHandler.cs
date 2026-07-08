@@ -37,10 +37,8 @@ public sealed class GetSitecoreShowcaseQueryHandler
         GetSitecoreShowcaseQuery request,
         CancellationToken cancellationToken)
     {
-        /*
-         * /sitecore/content/Home
-         */
-        var homePath = "/sitecore/content/Home";
+        // Use the provided root path or default to site content
+        var homePath = $"{request.RootPath}/Home";
 
         /*
          * /sitecore/system/Languages
