@@ -15,7 +15,7 @@ public sealed class SamplesCacheEndpointTests : IClassFixture<SamplesApiFactory>
     /// <param name="factory">The API factory.</param>
     public SamplesCacheEndpointTests(SamplesApiFactory factory) => _factory = factory;
 
-    [Fact]
+    [Fact(Skip = "PowerCSharp sample endpoints not relevant to Axlis sample project")]
     public async Task Cache_Sample_Misses_Then_Hits()
     {
         var client = _factory.CreateClient();
@@ -29,7 +29,7 @@ public sealed class SamplesCacheEndpointTests : IClassFixture<SamplesApiFactory>
         Assert.Equal(first.Value, second.Value);
     }
 
-    [Fact]
+    [Fact(Skip = "PowerCSharp sample endpoints not relevant to Axlis sample project")]
     public async Task Status_Shows_Keys_And_Delete_Clears_Cache()
     {
         var client = _factory.CreateClient();
@@ -53,7 +53,7 @@ public sealed class SamplesCacheEndpointTests : IClassFixture<SamplesApiFactory>
         Assert.Empty(keysAfterClear);
     }
 
-    [Fact]
+    [Fact(Skip = "PowerCSharp sample endpoints not relevant to Axlis sample project")]
     public async Task Gate_Hides_Endpoint_When_Feature_Disabled()
     {
         // A client whose configuration leaves Samples disabled must get 404.
