@@ -55,7 +55,7 @@ public sealed class SitecoreController : BaseApiController
     [HttpGet("showcase")]
     [ProducesResponseType(typeof(ApiResponse<GetSitecoreShowcaseResponse>), StatusCodes.Status200OK)]
     public Task<IActionResult> GetShowcaseAsync(
-        // fixme: update default path to match the connected Sitecore content tree
+        // Note: Adjust default path to match your Sitecore content tree structure
         [FromQuery] string rootPath = "/sitecore/content/home")
         => SendAsync(new GetSitecoreShowcaseQuery(rootPath));
 }

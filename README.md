@@ -2,7 +2,7 @@
 
 > Sample Clean Architecture .NET 8 WebApi demonstrating the Axlis Sitecore Headless GraphQL ORM.
 
-**Note:** This project is based on [PowerCSharp.CleanArchitecture.Template](https://github.com/marioarce/PowerCSharp.CleanArchitecture). Axlis-specific documentation uses the `.AXLIS.md` suffix (e.g., `CHANGELOG.AXLIS.md`, `CONTRIBUTING.AXLIS.md`) to preserve the ability to merge updates from the base template.
+**Note:** This project demonstrates production-ready patterns for integrating Axlis into a Clean Architecture solution. Axlis-specific documentation uses the `.AXLIS.md` suffix (e.g., `CHANGELOG.AXLIS.md`, `CONTRIBUTING.AXLIS.md`).
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -328,4 +328,3 @@ This project is licensed under the [MIT License](LICENSE).
 - `CHANGELOG.AXLIS.md` — Axlis-specific changelog
 - `CONTRIBUTING.AXLIS.md` — Contribution guidelines for this sample
 - `SECURITY.AXLIS.md` — Security considerations for Axlis integration
-- `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` — Original template files (preserved for reference)

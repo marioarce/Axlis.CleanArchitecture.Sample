@@ -29,7 +29,7 @@ builder.Services
 ;
 
 // --- Axlis: Sitecore Headless GraphQL ORM ---
-// fixme: Endpoint and ApiKey must be set in user-secrets for dev; swap to NuGet PackageReference before release.
+// Note: Endpoint and ApiKey must be set in user-secrets for development
 builder.Services
     .AddAxlis(o =>
     {
