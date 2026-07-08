@@ -4,35 +4,38 @@ using Axlis.Core.FieldTypes;
 
 namespace CleanArchitecture.Application.Sitecore.Templates.System;
 
-/// <summary>Language template from Sitecore.</summary>
+/// <summary>
+/// Represents a language template from Sitecore.
+/// Contains language-specific settings including charset, encoding, and ISO codes.
+/// </summary>
 [SitecoreTemplate("{F68F13A6-3395-426A-B9A1-FA2DC60D94EB}")]
 public class Language : ExtendedItem
 {
-    /// <summary>Charset field.</summary>
+    /// <summary>Gets the charset field for the language.</summary>
     [SitecoreField("Charset")]
     public TextField Charset => GetField<TextField>("Charset");
 
-    /// <summary>Code page field.</summary>
+    /// <summary>Gets the code page field for the language.</summary>
     [SitecoreField("Code page")]
     public TextField CodePage => GetField<TextField>("Code page");
 
-    /// <summary>Dictionary field.</summary>
+    /// <summary>Gets the dictionary field for the language.</summary>
     [SitecoreField("Dictionary")]
     public TextField Dictionary => GetField<TextField>("Dictionary");
 
-    /// <summary>Encoding field.</summary>
+    /// <summary>Gets the encoding field for the language.</summary>
     [SitecoreField("Encoding")]
     public TextField Encoding => GetField<TextField>("Encoding");
 
-    /// <summary>Fallback language field.</summary>
+    /// <summary>Gets the fallback language reference field.</summary>
     [SitecoreField("FallbackLanguage")]
     public ItemReferenceField FallbackLanguage => GetField<ItemReferenceField>("FallbackLanguage");
 
-    /// <summary>ISO code field.</summary>
+    /// <summary>Gets the ISO code field for the language.</summary>
     [SitecoreField("Iso")]
     public TextField Iso => GetField<TextField>("Iso");
 
-    /// <summary>Regional ISO code field.</summary>
+    /// <summary>Gets the regional ISO code field for the language.</summary>
     [SitecoreField("Regional Iso Code")]
     public TextField RegionalIsoCode => GetField<TextField>("Regional Iso Code");
 }

@@ -4,15 +4,18 @@ using Axlis.Core.FieldTypes;
 
 namespace CleanArchitecture.Application.Sitecore.Templates.Sample;
 
-/// <summary>Sample item template from Sitecore.</summary>
+/// <summary>
+/// Represents a sample item template from Sitecore.
+/// This template demonstrates the usage of Axlis for defining Sitecore templates.
+/// </summary>
 [SitecoreTemplate("{76036F5E-C477-44E2-8178-773413C533F7}")]
 public class SampleItem : ExtendedItem
 {
-    /// <summary>Title field.</summary>
+    /// <summary>Gets the title field of the sample item.</summary>
     [SitecoreField("Title")]
     public TextField Title => GetField<TextField>("Title");
 
-    /// <summary>Text field.</summary>
+    /// <summary>Gets the text field of the sample item.</summary>
     [SitecoreField("Text")]
     public TextField Text => GetField<TextField>("Text");
 }
