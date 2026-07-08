@@ -1,3 +1,4 @@
+using Axlis.Extensions;
 using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Presentation;
@@ -27,6 +28,21 @@ builder.Services
     .AddCacheDisk(builder.Configuration)                                // Disk cache provider (flag-gated)
 ;
 
+// --- Axlis: Sitecore Headless GraphQL ORM ---
+// Note: Endpoint and ApiKey must be set in user-secrets for development
+builder.Services
+    .AddAxlis(o =>
+    {
+        builder.Configuration.GetSection("Axlis").Bind(o);
+    })
+    .AddAxlisGraphQL(o =>
+    {
+        o.Endpoint = builder.Configuration["AxlisGraphQL:Endpoint"] ?? string.Empty;
+        o.ApiKey   = builder.Configuration["AxlisGraphQL:ApiKey"];
+        o.BatchSize = int.TryParse(builder.Configuration["AxlisGraphQL:BatchSize"], out var b) ? b : 10;
+        o.TimeoutSeconds = int.TryParse(builder.Configuration["AxlisGraphQL:TimeoutSeconds"], out var t) ? t : 30;
+    });
+
 // --- Composition root: wire the layers (clean-correct dependency direction) ---
 builder.Services
     .AddApplication()
@@ -43,6 +59,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+// Wire the ambient lazy-loader so ExtendedItem.Axes traversal works at runtime.
+app.Services.UseAxlis();
 
 if (app.Environment.IsDevelopment())
 {
