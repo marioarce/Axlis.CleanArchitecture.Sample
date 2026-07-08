@@ -23,10 +23,10 @@
     <ProjectReference Include="..\CleanArchitecture.Domain\CleanArchitecture.Domain.csproj" />
   </ItemGroup>
 
-  <!-- fixme: dev-only ProjectReference — replace with PackageReference to Axlis + Axlis.GraphQL NuGet before release -->
+  <!-- Axlis NuGet packages -->
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Axlis\src\Axlis\Axlis.csproj" />
-    <ProjectReference Include="..\..\..\Axlis\src\Axlis.GraphQL\Axlis.GraphQL.csproj" />
+    <PackageReference Include="Axlis" Version="0.1.0" />
+    <PackageReference Include="Axlis.GraphQL" Version="0.1.0" />
   </ItemGroup>
 
 </Project>

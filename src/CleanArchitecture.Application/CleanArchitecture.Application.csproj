@@ -5,9 +5,9 @@
     <ProjectReference Include="..\CleanArchitecture.Shared\CleanArchitecture.Shared.csproj" />
   </ItemGroup>
 
-  <!-- fixme: dev-only ProjectReference — replace with PackageReference to Axlis.Core NuGet before release -->
+  <!-- Axlis NuGet packages -->
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Axlis\src\Axlis.Core\Axlis.Core.csproj" />
+    <PackageReference Include="Axlis.Core" Version="0.1.0" />
   </ItemGroup>
 
   <ItemGroup>
