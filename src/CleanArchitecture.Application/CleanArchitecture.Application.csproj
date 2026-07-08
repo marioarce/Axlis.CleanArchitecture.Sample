@@ -30,4 +30,12 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <None Remove="Sitecore\Templates\System\" />
+    <None Remove="Sitecore\Templates\Sample\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sitecore\Templates\System\" />
+    <Folder Include="Sitecore\Templates\Sample\" />
+  </ItemGroup>
 </Project>
