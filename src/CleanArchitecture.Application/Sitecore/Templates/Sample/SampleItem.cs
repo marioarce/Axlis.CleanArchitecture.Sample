@@ -1,6 +1,6 @@
-using Axlis.Attributes;
-using Axlis.Core;
-using Axlis.Core.FieldTypes;
+using Axlis.ORM.Attributes;
+using Axlis.ORM.Core;
+using Axlis.ORM.Core.FieldTypes;
 
 namespace CleanArchitecture.Application.Sitecore.Templates.Sample;
 
