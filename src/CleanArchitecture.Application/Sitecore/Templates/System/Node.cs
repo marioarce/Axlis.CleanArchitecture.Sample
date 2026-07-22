@@ -1,5 +1,5 @@
-using Axlis.Attributes;
-using Axlis.Core;
+using Axlis.ORM.Attributes;
+using Axlis.ORM.Core;
 
 namespace CleanArchitecture.Application.Sitecore.Templates.System;
 

@@ -7,9 +7,10 @@
 
   <!-- Axlis NuGet packages -->
   <ItemGroup>
-    <PackageReference Include="Axlis.Core" Version="0.1.0" />
+    <PackageReference Include="Axlis.ORM" Version="0.1.0" />
+    <PackageReference Include="Axlis.ORM.Abstractions" Version="0.1.0" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Ardalis.Result" Version="10.1.0" />
     <PackageReference Include="Ardalis.Result.FluentValidation" Version="10.1.0" />
