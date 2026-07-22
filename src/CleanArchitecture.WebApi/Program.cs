@@ -1,4 +1,4 @@
-using Axlis.Extensions;
+using Axlis.ORM.Extensions;
 using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Presentation;
@@ -31,11 +31,11 @@ builder.Services
 // --- Axlis: Sitecore Headless GraphQL ORM ---
 // Note: Endpoint and ApiKey must be set in user-secrets for development
 builder.Services
-    .AddAxlis(o =>
+    .AddAxlisORM(o =>
     {
         builder.Configuration.GetSection("Axlis").Bind(o);
     })
-    .AddAxlisGraphQL(o =>
+    .AddAxlisORMGraphQL(o =>
     {
         o.Endpoint = builder.Configuration["AxlisGraphQL:Endpoint"] ?? string.Empty;
         o.ApiKey   = builder.Configuration["AxlisGraphQL:ApiKey"];

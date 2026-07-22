@@ -25,8 +25,8 @@
 
   <!-- Axlis NuGet packages -->
   <ItemGroup>
-    <PackageReference Include="Axlis" Version="0.1.0" />
-    <PackageReference Include="Axlis.GraphQL" Version="0.1.0" />
+    <PackageReference Include="Axlis.ORM.GraphQL" Version="0.1.0" />
+    <PackageReference Include="Axlis.ORM" Version="0.1.0" />
   </ItemGroup>
 
 </Project>
